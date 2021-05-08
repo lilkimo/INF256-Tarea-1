@@ -11,7 +11,7 @@ def connectToCachipunServer():
     return (response, s)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(('', 50366)) #Al poner el puerto 0 el SO busca automáticamente un socket desocupado.
+s.bind(('localhost', 50366)) #Al poner el puerto 0 el SO busca automáticamente un socket desocupado.
 
 s.listen(1)
 print(f'Servidor TCP escuchando en: {s.getsockname()[1]}')
