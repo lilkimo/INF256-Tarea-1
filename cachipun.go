@@ -19,6 +19,10 @@ func isAvailable() bool {
 	return true
 }
 
+func generarJugada() {
+	return
+}
+
 func main() {
 	PORT := ":50001"
 	BUFFER := 1024
@@ -44,9 +48,17 @@ func main() {
 
 		var data string
 		switch strings.TrimSpace(string(buffer[0:n])) {
+
 		case "STOP":
-			fmt.Println("Exiting UDP server!")
+			fmt.Println("Apagando el servidor.")
+			data = "OK"
+			_, err = connection.WriteToUDP([]byte(data), addr)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 			return
+
 		case "ISAVAILABLE?":
 			if isAvailable() {
 				data = "OK"
