@@ -18,11 +18,22 @@ func isAvailable() bool {
 	return true
 }
 
-func generarJugada() {
-	return
+func generarJugada() string {
+	rand.Seed(time.Now().UnixNano())
+	min := 1
+	max := 3
+	result := rand.Intn(max-min+1) + min
+	if result == 1 {
+		return "ROCK"
+	} else if result == 2 {
+		return "PAPER"
+	} else {
+		return "SCISSORS"
+	}
 }
 
 func main() {
+	fmt.Println("Iniciando servidor cachipun.")
 	PORT := ":50001"
 	BUFFER := 1024
 
@@ -65,6 +76,9 @@ func main() {
 				} else {
 					data = "NO"
 				}
+
+			case "GETSHAPE":
+				data = generarJugada()
 		}
 
 		_, err = connection.WriteToUDP([]byte(data), addr)
