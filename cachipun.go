@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
-	"strings"
 	"time"
 )
 
@@ -42,29 +41,30 @@ func main() {
 	defer connection.Close()
 	buffer := make([]byte, BUFFER)
 
+	var response string
 	for {
 		n, addr, err := connection.ReadFromUDP(buffer)
-		fmt.Print("-> ", string(buffer), "\n")
-
+		response = string(buffer[0:n])
+		fmt.Printf("-> %s\n", response)
+		
 		var data string
-		switch strings.TrimSpace(string(buffer[0:n])) {
-
-		case "STOP":
-			fmt.Println("Apagando el servidor.")
-			data = "OK"
-			_, err = connection.WriteToUDP([]byte(data), addr)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			return
-
-		case "ISAVAILABLE?":
-			if isAvailable() {
+		switch response {
+			case "STOP":
+				fmt.Println("Apagando el servidor.")
 				data = "OK"
-			} else {
-				data = "NO"
-			}
+				_, err = connection.WriteToUDP([]byte(data), addr)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				return
+
+			case "ISAVAILABLE?":
+				if isAvailable() {
+					data = "OK"
+				} else {
+					data = "NO"
+				}
 		}
 
 		_, err = connection.WriteToUDP([]byte(data), addr)
