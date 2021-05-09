@@ -28,17 +28,24 @@ while True:
         print(f'Usted jugó {j_cliente}.')
 
         cachipunSocket.sendto('GETSHAPE'.encode(), cachipunAddr)
-        j_cachipun = cachipunSocket.recv(2048)
+        j_cachipun = cachipunSocket.recv(2048).decode()
         print(f'El servidor cachipun jugó {j_cachipun}.')
 
         if (utilities.beats[(j_cliente, j_cachipun)] == utilities.WIN):
             contador[0] += 1
-
+            if contador[0] >= 3:
+                clientSocket.send('WIN'.encode())
+                break
         elif (utilities.beats[(j_cliente, j_cachipun)] == utilities.LOSE):
             contador[1] += 1
-        
+            if contador[1] >= 3:
+                clientSocket.send('LOSE'.encode())
+                break
         elif (utilities.beats[(j_cliente, j_cachipun)] != utilities.DRAW):
             raise Exception()
+        
+        print(contador)
+        clientSocket.send('CONTINUE'.encode())
 
     response = clientSocket.recv(2048).decode()
     print(f'Solicitud {response} recibida.')
@@ -48,6 +55,7 @@ while True:
         print('Respuesta del servidor cachipun recibida.')
         clientSocket.send(response)
         print('Respuesta reenviada al cliente.')
+        contador = [0,0]
     elif response == 'STOP':
         cachipunSocket.sendto(response.encode(), cachipunAddr)
         print('Solicitud reenviada al servidor cachipun.')

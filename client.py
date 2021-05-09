@@ -30,20 +30,19 @@ class Client:
         print('Solicitud aceptada')
         return True
     
-    def play(self, shape: str) -> int:
+    def play(self, shape: str) -> str:
         if not self.gameOn:
             raise Exception()
         if shape not in utilities.shapes:
             raise Exception()
-        print(shape)
-        '''
-        self.s.send(shape.encode())
-        response = self.s.recv(2048).decode()
 
-        if response not in utilities.results:
+        self.s.send(shape.encode())
+        result = self.s.recv(2048).decode()
+        if result in ('WIN', 'LOSE'):
+            self.gameOn = False
+        elif result != 'CONTINUE':
             raise Exception()
-        return response
-        '''
+        return result
     
     def finish(self) -> bool:
         print('Solicitando fin de la partida...')
@@ -62,11 +61,26 @@ class Client:
 
 def main():
     with Client(('localhost', 50366)) as client:
-        if client.requestGame():
-            jugada = input('Ingrese su jugada: ')
-            while jugada.upper().strip() not in utilities.shapesES:
-                jugada = input(f'{jugada} no es una jugada válida.\nIngrese su jugada: ')
-            client.play(utilities.shapesES[jugada.upper().strip()])
+        while True:
+            if client.requestGame():
+                result = 'CONTINUE'
+                while result == 'CONTINUE':
+                    jugada = input('Ingrese su jugada: ')
+                    while jugada.upper().strip() not in utilities.shapesES:
+                        jugada = input(f'{jugada} no es una jugada válida.\nIngrese su jugada: ')
+                    result = client.play(utilities.shapesES[jugada.upper().strip()])
+                if result == 'WIN':
+                    print('Ganas3')
+                else:
+                    print('Perdis3')
+            while True:
+                newMatch = input('¿Desea comenzar una nueva partida? (S/n): ')
+                if newMatch.upper().strip() not in ('S', 'N'):
+                    print(f'{newMatch} no es una opción válida')
+                else:
+                    break
+            if newMatch.upper().strip() == 'N':
+                break
 
 if __name__ == '__main__':
     main()

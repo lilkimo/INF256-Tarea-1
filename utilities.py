@@ -12,7 +12,8 @@ shapes = [
 shapesES = {
     'PIEDRA': 'ROCK',
     'PAPEL': 'PAPER',
-    'TIJERAS': 'SCISSORS'
+    'TIJERAS': 'SCISSORS',
+    'TIJERA': 'SCISSORS'
 }
 
 WIN = 0
@@ -32,5 +33,5 @@ beats = {
 
     ('SCISSORS', 'ROCK'): LOSE,
     ('SCISSORS', 'PAPER'): WIN,
-    ('SCISSORS', 'ROCK'): DRAW
+    ('SCISSORS', 'SCISSORS'): DRAW
 }
