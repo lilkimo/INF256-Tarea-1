@@ -1,6 +1,7 @@
 import socket
+import utilities
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s = socket.socket(type = utilities.TCP)
 s.connect(('localhost', 50366))
 
 print('Solicitando el inicio de una partida...')
