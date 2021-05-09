@@ -45,18 +45,18 @@ func main() {
 	for {
 		n, addr, err := connection.ReadFromUDP(buffer)
 		response = string(buffer[0:n])
-		fmt.Printf("-> %s\n", response)
+		fmt.Printf("[IN ] %s\n", response)
 		
 		var data string
 		switch response {
 			case "STOP":
-				fmt.Println("Apagando el servidor.")
 				data = "OK"
 				_, err = connection.WriteToUDP([]byte(data), addr)
 				if err != nil {
 					fmt.Println(err)
 					return
 				}
+				fmt.Printf("[OUT] %s\nApagando el servidor...\n", data)
 				return
 
 			case "ISAVAILABLE?":
@@ -66,11 +66,11 @@ func main() {
 					data = "NO"
 				}
 		}
-
 		_, err = connection.WriteToUDP([]byte(data), addr)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		fmt.Printf("[OUT] %s\n", data)
 	}
 }
