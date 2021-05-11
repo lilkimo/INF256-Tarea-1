@@ -37,12 +37,21 @@ class Client:
             raise Exception()
 
         self.s.send(shape.encode())
-        result = self.s.recv(2048).decode()
-        if result in ('WIN', 'LOSE'):
+        result, toDo = self.s.recv(2048).decode().split(',')
+        if toDo in ('WIN', 'LOSE'):
             self.gameOn = False
-        elif result != 'CONTINUE':
+        elif toDo != 'CONTINUE':
             raise Exception()
-        return result
+
+        if result == 'WIN':
+            print('Ganas')
+        elif result == 'LOSE':
+            print('Pierdes')
+        elif result == 'DRAW':
+            print('Empatas')
+        else:
+            raise Exception()
+        return toDo
     
     def finish(self) -> bool:
         print('Solicitando fin de la partida...')
@@ -70,11 +79,11 @@ def main():
                         jugada = input(f'{jugada} no es una jugada válida.\nIngrese su jugada: ')
                     result = client.play(utilities.shapesES[jugada.upper().strip()])
                 if result == 'WIN':
-                    print('Ganas3')
+                    print('¡Has ganado la partida!')
                 else:
-                    print('Perdis3')
+                    print('Has perdido la partida...')
             while True:
-                newMatch = input('¿Desea comenzar una nueva partida? (S/n): ')
+                newMatch = input('¿Desea comenzar una nueva partida? (S/N): ')
                 if newMatch.upper().strip() not in ('S', 'N'):
                     print(f'{newMatch} no es una opción válida')
                 else:

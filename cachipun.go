@@ -34,7 +34,7 @@ func generarJugada() string {
 
 func main() {
 	fmt.Println("Iniciando servidor cachipun.")
-	PORT := ":50001"
+	PORT := ":50004"
 	BUFFER := 1024
 
 	s, err := net.ResolveUDPAddr("udp4", PORT)
@@ -70,7 +70,7 @@ func main() {
 				fmt.Printf("[OUT] %s\nApagando el servidor...\n", data)
 				return
 
-			case "ISAVAILABLE?":
+			case "REQUESTGAME":
 				if isAvailable() {
 					data = "OK"
 				} else {

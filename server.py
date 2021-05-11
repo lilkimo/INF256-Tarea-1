@@ -1,13 +1,92 @@
-import socket
+from socket import socket
 import utilities
 
-cachipunAddr = ('localhost', 50001)
-cachipunSocket = socket.socket(type = utilities.UDP)
+class Server:
+    def __init__(self, addr, cachipunAddr):
+        self.cachipunA = cachipunAddr
+        self.cachipunS = socket(type = utilities.UDP)
+        self.s = socket(type = utilities.TCP)
+        self.s.bind(addr)
+        self.s.listen(1)
+        print(f'Servidor TCP escuchando en: {self.s.getsockname()[1]}')
+        self.clientS, _ = self.s.accept()
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.s.close()
+        self.cachipunS.close()
+        self.clientS.close()
+    
+    def hearClient(self, buffer: int = 2048) -> bytes:
+        return self.clientS.recv(buffer)
+    
+    def hearCachipun(self, msg: bytes, buffer: int = 2048) -> bytes:
+        self.cachipunS.sendto(msg, self.cachipunA)
+        return self.cachipunS.recv(buffer)
+    
+    def game(self) -> bool:
+        clientCount = 0
+        cachipunCount = 0
+        while clientCount < 3 and cachipunCount < 3:
+            shapes = (self.hearClient().decode(), self.hearCachipun('GETSHAPE'.encode()).decode())
+            if utilities.beats[shapes] == utilities.WIN:
+                result = 'WIN'
+                clientCount += 1
+            elif (utilities.beats[shapes] == utilities.LOSE):
+                result = 'LOSE'
+                cachipunCount += 1
+            elif (utilities.beats[shapes] != utilities.DRAW):
+                raise Exception()
+            else:
+                result = 'DRAW'
 
-s = socket.socket(type = utilities.TCP)
+            if clientCount == 3:
+                self.clientS.send(f'{result},WIN'.encode())
+                return True
+            elif cachipunCount == 3:
+                self.clientS.send(f'{result},LOSE'.encode())
+                return False
+            elif clientCount > 3 or cachipunCount > 3:
+                raise Exception()
+            self.clientS.send(f'{result},CONTINUE'.encode())
+
+def main():
+    with Server(('localhost', 50366), ('localhost', 50004)) as server:
+        response = server.hearClient()
+        print(f'Solicitud {response.decode()} recibida.')
+        if response.decode() != 'REQUESTGAME':
+            raise Exception()
+        response = server.hearCachipun(response)
+        print(f'Respuesta {response.decode()} recibida.')
+
+        while True:
+            server.clientS.send(response)
+            if response.decode() == 'OK':
+                server.game()
+            response = server.hearClient()
+            print(f'Solicitud {response.decode()} recibida.')
+            if response.decode() == 'REQUESTGAME':
+                response = server.hearCachipun(response)
+            elif response.decode() == 'STOP':
+                response = server.hearCachipun(response)
+                if response.decode() != 'OK':
+                    raise Exception()
+                server.clientS.send(response)
+                print('Finalizando ejecución...')
+                break
+
+if __name__ == '__main__':
+    main()
+'''
+cachipunAddr = ('localhost', 50001)
+cachipunSocket = socket(type = utilities.UDP)
+
+s = socket(type = utilities.TCP)
 s.bind(('localhost', 50366)) #Al poner el puerto 0 el SO busca automáticamente un socket desocupado.
 s.listen(1)
-print(f'Servidor TCP escuchando en: {s.getsockname()[1]}')
+#print(f'Servidor TCP escuchando en: {s.getsockname()[1]}')
 clientSocket, clientAddr = s.accept()
 
 response = clientSocket.recv(2048).decode()
@@ -67,3 +146,4 @@ while True:
         break
 print('Finalizando ejecución...')
 cachipunSocket.close()
+'''
