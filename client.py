@@ -37,7 +37,7 @@ class Client:
             raise Exception()
 
         self.s.send(shape.encode())
-        result, toDo = self.s.recv(2048).decode().split(',')
+        result, victories, loses, toDo = self.s.recv(2048).decode().split(',')
         if toDo in ('WIN', 'LOSE'):
             self.gameOn = False
         elif toDo != 'CONTINUE':
@@ -51,6 +51,7 @@ class Client:
             print('Empatas')
         else:
             raise Exception()
+        print(f'Ganadas: {victories}|Perdidas: {loses}')
         return toDo
     
     def finish(self) -> bool:
