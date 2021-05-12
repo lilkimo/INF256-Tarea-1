@@ -16,7 +16,7 @@ class Client:
         if not self.finish():
             print('Se ha finalizado la ejecución del cliente durante una partida, esto podría ocasionar que los servidores no se cierren.')
             self.s.close()
-        print('')
+        print('Finalizando ejecución...')
 
     def requestGame(self) -> bool:
         # Aquí solicito el inicio de una partida
