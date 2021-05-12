@@ -4,8 +4,17 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"strconv"
 	"time"
 )
+
+func generateRandomPort() int {
+	rand.Seed(time.Now().UnixNano())
+	min := 49154
+	max := 65535
+	result := rand.Intn(max-min+1) + min
+	return result
+}
 
 func isAvailable() bool {
 	rand.Seed(time.Now().UnixNano())
@@ -37,13 +46,12 @@ func main() {
 	PORT := ":50004"
 	BUFFER := 1024
 
-	s, err := net.ResolveUDPAddr("udp4", PORT)
+	udpAddr, err := net.ResolveUDPAddr("udp4", PORT)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
-	connection, err := net.ListenUDP("udp4", s)
+	connection, err := net.ListenUDP("udp4", udpAddr)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -72,9 +80,22 @@ func main() {
 
 			case "REQUESTGAME":
 				if isAvailable() {
-					data = "OK"
+					randomPort := generateRandomPort()
+					udpAddrRandom, err := net.ResolveUDPAddr("udp4", PORT)
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					connectionRandom, err := net.ListenUDP("udp4", udpAddrRandom)
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					defer connectionRandom.Close()
+					data = "OK," + strconv.Itoa(randomPort)
+					fmt.Println(data)
 				} else {
-					data = "NO"
+					data = "NO,"
 				}
 
 			case "GETSHAPE":
