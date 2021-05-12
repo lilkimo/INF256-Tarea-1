@@ -2,8 +2,8 @@ from socket import socket
 import utilities
 
 class Server:
-    def __init__(self, addr, cachipunAddr):
-        self.cachipunA = cachipunAddr
+    def __init__(self, addr, cachipunAddrddr):
+        self.cachipunAddr = self.cachipunHearingAddr = cachipunAddrddr
         self.cachipunS = socket(type = utilities.UDP)
         self.s = socket(type = utilities.TCP)
         self.s.bind(addr)
@@ -23,10 +23,16 @@ class Server:
         return self.clientS.recv(buffer)
     
     def hearCachipun(self, msg: bytes, buffer: int = 2048) -> bytes:
-        self.cachipunS.sendto(msg, self.cachipunA)
+        self.cachipunS.sendto(msg, self.cachipunHearingAddr)
         return self.cachipunS.recv(buffer)
+
+    def requestGame(self, msg: bytes) -> bytes:
+        response, port = self.hearCachipun(msg).decode().split(',')
+        if response == 'OK':
+            self.cachipunHearingAddr = (self.cachipunAddr[0], int(port))
+        return response.encode()
     
-    def game(self) -> bool:
+    def game(self):
         clientCount = 0
         cachipunCount = 0
         while clientCount < 3 and cachipunCount < 3:
@@ -44,22 +50,24 @@ class Server:
 
             if clientCount == 3:
                 self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},WIN'.encode())
-                return True
+                break
             elif cachipunCount == 3:
                 self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},LOSE'.encode())
-                return False
+                break
             elif clientCount > 3 or cachipunCount > 3:
                 raise Exception()
             self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},CONTINUE'.encode())
+        if self.hearCachipun('CLOSE'.encode()).decode() != 'OK':
+            raise Exception()
+        self.cachipunHearingAddr = self.cachipunAddr
 
 def main():
-    with Server(('localhost', 50366), ('localhost', 50004)) as server:
+    with Server(('localhost', 49152), ('localhost', 49153)) as server:
         response = server.hearClient()
         print(f'Solicitud {response.decode()} recibida.')
         if response.decode() != 'REQUESTGAME':
             raise Exception()
-        response = server.hearCachipun(response)
-        print(f'Respuesta {response.decode()} recibida.')
+        response = server.requestGame(response)
 
         while True:
             server.clientS.send(response)

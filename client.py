@@ -72,7 +72,7 @@ class Client:
         return True
 
 def main():
-    with Client(('localhost', 50366)) as client:
+    with Client(('localhost', 49152)) as client:
         while True:
             if client.requestGame():
                 result = 'CONTINUE'
