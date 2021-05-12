@@ -16,6 +16,12 @@ shapesES = {
     'TIJERA': 'SCISSORS'
 }
 
+shapesEN = {
+    'ROCK': 'piedra',
+    'PAPER': 'papel',
+    'SCISSORS': 'tijeras'
+}
+
 WIN = 0
 LOSE = 1
 DRAW = 2

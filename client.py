@@ -12,7 +12,7 @@ class Client:
     
     def __exit__(self, *args):
         if not self.finish():
-            print('Se ha finalizado la ejecución del cliente durante una partida, esto podría ocacionar que los servidores no se cierren.')
+            print('Se ha finalizado la ejecución del cliente durante una partida, esto podría ocasionar que los servidores no se cierren.')
             self.s.close()
         print('')
 
@@ -27,7 +27,7 @@ class Client:
             raise Exception()
         
         self.gameOn = True
-        print('Solicitud aceptada')
+        print('Solicitud aceptada\n---')
         return True
     
     def play(self, shape: str) -> str:
@@ -37,20 +37,23 @@ class Client:
             raise Exception()
 
         self.s.send(shape.encode())
-        result, toDo = self.s.recv(2048).decode().split(',')
+        result, victories, loses, bot, toDo = self.s.recv(2048).decode().split(',')
         if toDo in ('WIN', 'LOSE'):
             self.gameOn = False
         elif toDo != 'CONTINUE':
             raise Exception()
 
+        print(f'El bot jugó {utilities.shapesEN[bot]}')
+
         if result == 'WIN':
-            print('Ganas')
+            print('Ganaste esta ronda')
         elif result == 'LOSE':
-            print('Pierdes')
+            print('Perdiste esta ronda')
         elif result == 'DRAW':
-            print('Empatas')
+            print('Empataron')
         else:
             raise Exception()
+        print(f'Ganadas: {victories}|Perdidas: {loses}\n---')
         return toDo
     
     def finish(self) -> bool:
