@@ -27,7 +27,7 @@ class Client:
             print('Solicitud rechazada')
             return False
         elif response != 'OK':
-            raise Exception()
+            raise Exception('Se recibio una respuesta inesperada.')
         
         # Si la solicitud es aceptada entonces estamos en partida.
         self.gameOn = True
@@ -37,9 +37,9 @@ class Client:
     def play(self, shape: str) -> str:
         # Si no estamos en partida o se usa un movimiento que no existe hay que arrojar un error.
         if not self.gameOn:
-            raise Exception()
+            raise Exception('Se intentó jugar sin haber una partida en curso.')
         if shape not in utilities.shapes:
-            raise Exception()
+            raise Exception('Se realizó un movimiento inválido.')
         
         # Envío la jugada
         self.s.send(shape.encode())
@@ -49,7 +49,7 @@ class Client:
             # Si gané o perdí la partida entonces ya se terminó esta.
             self.gameOn = False
         elif toDo != 'CONTINUE':
-            raise Exception()
+            raise Exception('Se recibió un valor inesperado para el resultado de la partida.')
 
         print(f'El bot jugó {utilities.shapesEN[bot]}')
 
@@ -60,7 +60,7 @@ class Client:
         elif result == 'DRAW':
             print('Empataron')
         else:
-            raise Exception()
+            raise Exception('Se recibió un valor inesperado para el resultado de la ronda.')
         print(f'Ganadas: {victories}|Perdidas: {loses}\n---')
         return toDo
     
@@ -75,7 +75,7 @@ class Client:
         response = self.s.recv(2048).decode()
 
         if response != 'OK':
-            raise Exception()
+            raise Exception('El Servidor Intermediario no se cerró correctamente.')
         print('Solicitud aceptada, finalizando ejecución...')
         self.s.close()
         return True
