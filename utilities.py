@@ -17,9 +17,9 @@ shapesES = {
 }
 
 shapesEN = {
-    'ROCK': 'piedra',
-    'PAPER': 'papel',
-    'SCISSORS': 'tijeras'
+    'ROCK': 'PIEDRA',
+    'PAPER': 'PAPEL',
+    'SCISSORS': 'TIJERAS'
 }
 
 WIN = 0

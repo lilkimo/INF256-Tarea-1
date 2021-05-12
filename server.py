@@ -29,6 +29,7 @@ class Server:
     def requestGame(self, msg: bytes) -> bytes:
         response, port = self.hearCachipun(msg).decode().split(',')
         if response == 'OK':
+            print(f'Se cambió la dirección de escucha del servidor cachipun de {self.cachipunHearingAddr} a {(self.cachipunAddr[0], int(port))}')
             self.cachipunHearingAddr = (self.cachipunAddr[0], int(port))
         return response.encode()
     
@@ -59,6 +60,7 @@ class Server:
             self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},CONTINUE'.encode())
         if self.hearCachipun('CLOSE'.encode()).decode() != 'OK':
             raise Exception()
+        print(f'Se cambió la dirección de escucha del servidor cachipun de {self.cachipunHearingAddr} a {self.cachipunAddr}')
         self.cachipunHearingAddr = self.cachipunAddr
 
 def main():
@@ -76,7 +78,7 @@ def main():
             response = server.hearClient()
             print(f'Solicitud {response.decode()} recibida.')
             if response.decode() == 'REQUESTGAME':
-                response = server.hearCachipun(response)
+                response = server.requestGame(response)
             elif response.decode() == 'STOP':
                 response = server.hearCachipun(response)
                 if response.decode() != 'OK':
@@ -84,6 +86,8 @@ def main():
                 server.clientS.send(response)
                 print('Finalizando ejecución...')
                 break
+            else:
+                raise Exception()
 
 if __name__ == '__main__':
     main()

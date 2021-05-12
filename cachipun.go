@@ -42,8 +42,8 @@ func generarJugada() string {
 }
 
 func main() {
-	fmt.Println("Iniciando servidor cachipun.")
-	PORT := ":50004"
+	PORT := ":49153"
+	fmt.Println("Iniciando servidor cachipun en el puerto " + PORT)
 	BUFFER := 1024
 
 	// Se crea un socket para comunicarse con el servidor intermediario
@@ -97,7 +97,6 @@ func main() {
 					}
 					bufferGame := make([]byte, BUFFER)
 					data := "OK," + randomPort
-					fmt.Println(data)
 
 					// Se envía OK al servidor intermediario con el puerto aleatorio del socket
 					_, err = connection.WriteToUDP([]byte(data), addr)
@@ -120,25 +119,28 @@ func main() {
 								fmt.Println(err)
 								return
 							}
-						} else if responseGame == "CLOSE"{
+							fmt.Printf("[OUT] %s\n", botShape)
+						} else if responseGame == "CLOSE" {
 							_, err = gameConnection.WriteToUDP([]byte("OK"), addrGame)
 							if err != nil {
 								fmt.Println(err)
 								return
 							}
+							fmt.Printf("Cerrando el puerto %s...\n", randomPort)
 							gameConnection.Close()
 							break
 						}
 					}
 				
 				} else {
-					// Si el servidor no se encuentra disponible, le envia NO al servidor intermediario
+					// Si el servidor no se encuentra disponible, le envia 'NO,' (En realidad es coma seguido de un caracter vacío que indica que no se generó puerto) al servidor intermediario
 					data = "NO,"
 					_, err = connection.WriteToUDP([]byte(data), addr)
 					if err != nil {
 						fmt.Println(err)
 						return
 					}
+					fmt.Printf("[OUT] %s\n", data)
 				}
 		}
 	}
