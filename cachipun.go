@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Genera un puerto aleatorio para los socket de juego
 func generateRandomPort() string {
 	rand.Seed(time.Now().UnixNano())
 	min := 49154
