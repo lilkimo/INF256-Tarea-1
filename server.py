@@ -43,14 +43,14 @@ class Server:
                 result = 'DRAW'
 
             if clientCount == 3:
-                self.clientS.send(f'{result},{clientCount},{cachipunCount},WIN'.encode())
+                self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},WIN'.encode())
                 return True
             elif cachipunCount == 3:
-                self.clientS.send(f'{result},{clientCount},{cachipunCount},LOSE'.encode())
+                self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},LOSE'.encode())
                 return False
             elif clientCount > 3 or cachipunCount > 3:
                 raise Exception()
-            self.clientS.send(f'{result},{clientCount},{cachipunCount},CONTINUE'.encode())
+            self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},CONTINUE'.encode())
 
 def main():
     with Server(('localhost', 50366), ('localhost', 50004)) as server:
