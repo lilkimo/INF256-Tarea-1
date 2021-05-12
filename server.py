@@ -45,7 +45,7 @@ class Server:
                 result = 'LOSE'
                 cachipunCount += 1
             elif (utilities.beats[shapes] != utilities.DRAW):
-                raise Exception()
+                raise Exception('El resultado de la ronda es distinto de "DRAW".')
             else:
                 result = 'DRAW'
 
@@ -56,10 +56,10 @@ class Server:
                 self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},LOSE'.encode())
                 break
             elif clientCount > 3 or cachipunCount > 3:
-                raise Exception()
+                raise Exception('El contador del Cliente o del Servidor Cachipún ha superado las 3 victorias por juego.')
             self.clientS.send(f'{result},{clientCount},{cachipunCount},{shapes[1]},CONTINUE'.encode())
         if self.hearCachipun('CLOSE'.encode()).decode() != 'OK':
-            raise Exception()
+            raise Exception('Se ha recibido una respuesta del Servidor Cachipun distinta de "OK".')
         print(f'Se cambió la dirección de escucha del servidor cachipun de {self.cachipunHearingAddr} a {self.cachipunAddr}')
         self.cachipunHearingAddr = self.cachipunAddr
 
@@ -68,7 +68,7 @@ def main():
         response = server.hearClient()
         print(f'Solicitud {response.decode()} recibida.')
         if response.decode() != 'REQUESTGAME':
-            raise Exception()
+            raise Exception('Se recibió una respuesta del Cliente distinta de "REQUESTGAME".')
         response = server.requestGame(response)
 
         while True:
@@ -82,12 +82,12 @@ def main():
             elif response.decode() == 'STOP':
                 response = server.hearCachipun(response)
                 if response.decode() != 'OK':
-                    raise Exception()
+                    raise Exception('El Servidor Cachipun ha respondido con un mensaje distinto de "OK"')
                 server.clientS.send(response)
                 print('Finalizando ejecución...')
                 break
             else:
-                raise Exception()
+                raise Exception('No se ha podido enviar el mensaje al Servidor Cachipun.')
 
 if __name__ == '__main__':
     main()

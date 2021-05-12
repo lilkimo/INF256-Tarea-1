@@ -17,6 +17,7 @@ func generateRandomPort() string {
 	return strconv.Itoa(result)
 }
 
+// Genera un booleano que indica si el Servidor Cachipun esta disponible o no, con un 10% de probabilidad de que no este disponible
 func isAvailable() bool {
 	rand.Seed(time.Now().UnixNano())
 	min := 1
@@ -28,6 +29,7 @@ func isAvailable() bool {
 	return true
 }
 
+// Genera un string que corresponde a lo que el bot jugara
 func generarJugada() string {
 	rand.Seed(time.Now().UnixNano())
 	min := 1
@@ -61,7 +63,7 @@ func main() {
 	defer connection.Close()
 	buffer := make([]byte, BUFFER)
 
-	// Se reciben mensajes del servidor intermediario en donde REQUESTGAME crea un socket para realizar las jugadas del bot y STOP cierra el servidor cachipun
+	// Se reciben mensajes del servidor intermediario en donde 'REQUESTGAME' crea un socket para realizar las jugadas del bot y 'STOP' cierra el servidor cachipun
 	var response string
 	for {
 		n, addr, err := connection.ReadFromUDP(buffer)
@@ -84,6 +86,7 @@ func main() {
 
 				// Si el servidor cachipun se encuentra disponible se procede con la creacion del socket con puerto aleatorio y jugadas aleatorias del bot
 				if isAvailable() {
+
 					// Se crea un socket nuevo en un puerto aleatorio
 					randomPort := generateRandomPort()
 					udpAddrRandom, err := net.ResolveUDPAddr("udp4", ":" + randomPort)
@@ -99,7 +102,7 @@ func main() {
 					bufferGame := make([]byte, BUFFER)
 					data := "OK," + randomPort
 
-					// Se envía OK al servidor intermediario con el puerto aleatorio del socket
+					// Se envía 'OK' al servidor intermediario con el puerto aleatorio del socket
 					_, err = connection.WriteToUDP([]byte(data), addr)
 					if err != nil {
 						fmt.Println(err)
@@ -107,7 +110,7 @@ func main() {
 					}
 					fmt.Printf("[OUT] %s\n", data)
 
-					// Se reciben GETSHAPE hasta que se recibe un CLOSE, con lo que avisa al servidor intermediario con OK y se cierra el socket terminando el ciclo
+					// Se reciben 'GETSHAPE' y se crean jugadas del bot hasta que se recibe un 'CLOSE', con lo que avisa al servidor intermediario con 'OK' y se cierra el socket terminando el ciclo
 					for {
 						nGame, addrGame, err := gameConnection.ReadFromUDP(bufferGame)
 						responseGame := string(bufferGame[0:nGame])
@@ -134,7 +137,7 @@ func main() {
 					}
 				
 				} else {
-					// Si el servidor no se encuentra disponible, le envia 'NO,' (En realidad es coma seguido de un caracter vacío que indica que no se generó puerto) al servidor intermediario
+					// Si el servidor no se encuentra disponible, le envia 'NO,' (en realidad es coma seguido de un caracter vacío que indica que no se generó puerto) al servidor intermediario
 					data = "NO,"
 					_, err = connection.WriteToUDP([]byte(data), addr)
 					if err != nil {
