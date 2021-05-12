@@ -46,6 +46,7 @@ func main() {
 	PORT := ":50004"
 	BUFFER := 1024
 
+	// Se crea un socket para comunicarse con el servidor intermediario
 	udpAddr, err := net.ResolveUDPAddr("udp4", PORT)
 	if err != nil {
 		fmt.Println(err)
@@ -56,10 +57,10 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
 	defer connection.Close()
 	buffer := make([]byte, BUFFER)
 
+	// Se reciben mensajes del servidor intermediario en donde REQUESTGAME crea un socket para realizar las jugadas del bot y STOP cierra el servidor cachipun
 	var response string
 	for {
 		n, addr, err := connection.ReadFromUDP(buffer)
@@ -79,33 +80,66 @@ func main() {
 				return
 
 			case "REQUESTGAME":
+
+				// Si el servidor cachipun se encuentra disponible se procede con la creacion del socket con puerto aleatorio y jugadas aleatorias del bot
 				if isAvailable() {
+					// Se crea un socket nuevo en un puerto aleatorio
 					randomPort := generateRandomPort()
 					udpAddrRandom, err := net.ResolveUDPAddr("udp4", ":" + randomPort)
 					if err != nil {
 						fmt.Println(err)
 						return
 					}
-					connectionRandom, err := net.ListenUDP("udp4", udpAddrRandom)
+					gameConnection, err := net.ListenUDP("udp4", udpAddrRandom)
 					if err != nil {
 						fmt.Println(err)
 						return
 					}
-					defer connectionRandom.Close()
-					data = "OK," + randomPort
+					bufferGame := make([]byte, BUFFER)
+					data := "OK," + randomPort
 					fmt.Println(data)
-				} else {
-					data = "NO,"
-				}
 
-			case "GETSHAPE":
-				data = generarJugada()
+					// Se envía OK al servidor intermediario con el puerto aleatorio del socket
+					_, err = connection.WriteToUDP([]byte(data), addr)
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					fmt.Printf("[OUT] %s\n", data)
+
+					// Se reciben GETSHAPE hasta que se recibe un CLOSE, con lo que avisa al servidor intermediario con OK y se cierra el socket terminando el ciclo
+					for {
+						nGame, addrGame, err := gameConnection.ReadFromUDP(bufferGame)
+						responseGame := string(bufferGame[0:nGame])
+						fmt.Printf("[IN ] %s\n", responseGame)
+
+						if responseGame == "GETSHAPE"{
+							botShape := generarJugada()
+							_, err = gameConnection.WriteToUDP([]byte(botShape), addrGame)
+							if err != nil {
+								fmt.Println(err)
+								return
+							}
+						} else if responseGame == "CLOSE"{
+							_, err = gameConnection.WriteToUDP([]byte("OK"), addrGame)
+							if err != nil {
+								fmt.Println(err)
+								return
+							}
+							gameConnection.Close()
+							break
+						}
+					}
+				
+				} else {
+					// Si el servidor no se encuentra disponible, le envia NO al servidor intermediario
+					data = "NO,"
+					_, err = connection.WriteToUDP([]byte(data), addr)
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+				}
 		}
-		_, err = connection.WriteToUDP([]byte(data), addr)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Printf("[OUT] %s\n", data)
 	}
 }
