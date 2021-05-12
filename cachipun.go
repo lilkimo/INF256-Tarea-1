@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func generateRandomPort() int {
+func generateRandomPort() string {
 	rand.Seed(time.Now().UnixNano())
 	min := 49154
 	max := 65535
 	result := rand.Intn(max-min+1) + min
-	return result
+	return strconv.Itoa(result)
 }
 
 func isAvailable() bool {
@@ -81,7 +81,7 @@ func main() {
 			case "REQUESTGAME":
 				if isAvailable() {
 					randomPort := generateRandomPort()
-					udpAddrRandom, err := net.ResolveUDPAddr("udp4", PORT)
+					udpAddrRandom, err := net.ResolveUDPAddr("udp4", ":" + randomPort)
 					if err != nil {
 						fmt.Println(err)
 						return
@@ -92,7 +92,7 @@ func main() {
 						return
 					}
 					defer connectionRandom.Close()
-					data = "OK," + strconv.Itoa(randomPort)
+					data = "OK," + randomPort
 					fmt.Println(data)
 				} else {
 					data = "NO,"
