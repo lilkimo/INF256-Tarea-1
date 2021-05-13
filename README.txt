@@ -5,7 +5,7 @@ Integrantes:
 Instrucciones:
 
 Se debe primero iniciar el Servidor Cachipún con el comando
-    go run cachipun.og
+    go run cachipun.go
 Luego se debe iniciar el Servidor Intermediario con el comando:
     py server.py
 Finalmente se inicia el Servidor Cliente con el comando:
